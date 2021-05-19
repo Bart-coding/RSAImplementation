@@ -24,22 +24,25 @@ public class RSAProgram
                 int M = rsaAlgorithm.Decode(C, keysConstants.e, keysConstants.n);
                 Console.WriteLine("M: "+M);
 
-                //tests
-                string message = "ameryka";
-                message = message.ToUpper();
-
-                List<string> substrings = RSAAlgorithm.GetLetterPairs(message);
-
-                foreach (string s in substrings)
-                {
-                  Console.WriteLine(s);
-                }
-
-                List<string> codedNumbers = RSAAlgorithm.EncodeLetterPairs(substrings);
-                foreach (string s in codedNumbers)
-                {
-                  Console.WriteLine(s);
-                }
+                //--------TESTS--------
+		string message = "ameryka";
+		message = message.ToUpper();
+		
+		List<string> substrings = RSAAlgorithm.GetLetterPairs(message);
+		
+		foreach (string s in substrings)
+		{
+			Console.WriteLine(s);
+		}
+        
+        	List<string> codedNumbers = RSAAlgorithm.EncodeLetterPairs(substrings);
+        	foreach (string s in codedNumbers)
+		{
+			Console.WriteLine(s);
+		}
+        
+        	string C2 = rsaAlgorithm.Encode("RENAISSANCE", keysConstants.d, keysConstants.n); //to get results like on lecture, p should be 53, q 61 and e 791
+        	Console.WriteLine("C2: "+C2); 
 
          }
 }
@@ -176,6 +179,24 @@ public class RSAAlgorithm
 		
 		M = (int) BigInteger.ModPow(C, e, n);
 		return M;
+	}
+	
+	public string Encode (string M, int d, int n)
+	{
+		//List<string> Csubstrings = new List<string>();
+		StringBuilder sb = new StringBuilder();
+		string C;
+		List<string> letterPairs = GetLetterPairs(M);
+		List<string> encodedLetterPairs = EncodeLetterPairs(letterPairs);
+		
+		foreach (string s in encodedLetterPairs)
+		{
+			int num = (int) BigInteger.ModPow(Int32.Parse(s), d, n);
+		    	sb.Append(num);
+		}
+		
+		C = sb.ToString();
+		return C;
 	}
 }
 
