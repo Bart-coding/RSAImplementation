@@ -109,30 +109,30 @@ public class RSAAlgorithm
 		return substrings;
 	}
     
-  public static List<string> EncodeLetterPairs (List<string> substrings) //2-char strings
-  {
-      List<string> numbersCodes = new List<string>();
+	  public static List<string> EncodeLetterPairs (List<string> substrings) //2-char strings
+	  {
+	      List<string> numbersCodes = new List<string>();
 
-      string temp;
-      int a, b;
-      foreach (string s in substrings)
-      {
-          a = s[0]-'A';
-          temp = (a/10).ToString() + (a%10).ToString();
+	      string temp;
+	      int a, b;
+	      foreach (string s in substrings)
+	      {
+		  a = s[0]-'A';
+		  temp = (a/10).ToString() + (a%10).ToString();
 
-          if (s[1].Equals(' '))
-               temp+=26;
-          else
-          {
-              b = s[1]-'A';
-              temp += (b/10).ToString() + (b%10).ToString();
-          }
+		  if (s[1].Equals(' '))
+		       temp+=26;
+		  else
+		  {
+		      b = s[1]-'A';
+		      temp += (b/10).ToString() + (b%10).ToString();
+		  }
 
-          numbersCodes.Add(temp);
-      }
+		  numbersCodes.Add(temp);
+	      }
 
-      return numbersCodes;
-  }
+	      return numbersCodes;
+	  }
 	
 	public KeysConstants GenerateKeys()
 	{
