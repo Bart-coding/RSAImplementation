@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace RSAImplementation
 {
@@ -15,21 +14,29 @@ namespace RSAImplementation
 			Console.WriteLine("d= " + keysConstants.d);
 
 			// ------- TESTS ---------- //
-			Console.WriteLine("---------- RESULTS ----------");
-			int intToCode = 5555;
-			int C = rsaAlgorithm.Encode(intToCode, keysConstants.e, keysConstants.n);
+			Console.WriteLine("-------------------- RESULTS --------------------");
+			int numberToCode = 1704;
+			int C = rsaAlgorithm.EncodeNumber(numberToCode, keysConstants.e, keysConstants.n);
+			if(C == -1)
+            {
+				return;
+            }
 			Console.WriteLine("C= " + C);
 
-			int M = rsaAlgorithm.Decode(C, keysConstants.d, keysConstants.n);
+			int M = rsaAlgorithm.DecodeNumber(C, keysConstants.d, keysConstants.n);
 			Console.WriteLine("M= " + M);
 
 			// ------- TESTS ---------- //
-			string stringToCode = "ABCDEFGHIJKLMNOPQRSTWXYZ";
-			string C2 = rsaAlgorithm.Encode(stringToCode, keysConstants.e, keysConstants.n); //to get results like on lecture, p should be 53, q 61 and e 791
-			//Console.WriteLine("C2= " + C2);
-			RSAAlgorithm.WriteStringNumber("C2=           ", C2, keysConstants.n.ToString().Length);
+			string stringToCode = "RENAISSANCE";
+			string C2 = rsaAlgorithm.EncodeString(stringToCode, keysConstants.e, keysConstants.n);
+			if(C2 == null)
+            {
+				return;
+            }
+            //Console.WriteLine("C2=           " + C2);
+            RSAAlgorithm.WriteStringNumber("C2=           ", C2, keysConstants.n.ToString().Length);
 
-			string M2 = rsaAlgorithm.Decode(C2.Replace(" ",""), keysConstants.d, keysConstants.n);
+            string M2 = rsaAlgorithm.DecodeString(C2, keysConstants.d, keysConstants.n);
 			Console.WriteLine("M2= " + M2);
 		}
 	}
