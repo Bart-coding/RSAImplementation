@@ -8,23 +8,22 @@ namespace RSAImplementation
 	{
 		public struct KeysConstants
 		{
-			public int n, e, d;
+			public BigInteger n, e, d;
 		}
 		public KeysConstants GenerateKeys()
 		{
-            // ------- TESTS ---------- //
             //int p = 53;
             //int q = 61;
-            //int e = 71;
             // ------- TESTS ---------- //
-            int[] tmp = DrawPandQ(10, 100);
+            //			  max value = 2147483647
+            int[] tmp = DrawPandQ(10, 10000);
             int p = tmp[0];
             int q = tmp[1];
-            int e = 2;
+            BigInteger e = 100;
 
-            int n = p * q;
+            BigInteger n = BigInteger.Multiply(p,q);
 
-			int phi = (p - 1) * (q - 1); //Euler function
+			BigInteger phi = BigInteger.Multiply(p-1, q-1); //Euler function
 
 			while (e != phi)
 			{
@@ -33,11 +32,11 @@ namespace RSAImplementation
 				e++;
 			}
 
-			int d = ModInverse(e, phi);
+			BigInteger d = ModInverse(e, phi);
 
-			Console.WriteLine("p= " + p);
-			Console.WriteLine("q= " + q);
-			Console.WriteLine("phi= " + phi);
+			Console.WriteLine("  p = " + p);
+			Console.WriteLine("  q = " + q);
+			Console.WriteLine("phi = " + phi);
 
 			return new KeysConstants
 			{
@@ -47,9 +46,9 @@ namespace RSAImplementation
 			};
 		}
 
-		private static int GCDEuclidean(int a, int b)
+		private static BigInteger GCDEuclidean(BigInteger a, BigInteger b)
 		{
-			int temp;
+			BigInteger temp;
 			while (b != 0)
 			{
 				temp = b;
@@ -61,13 +60,13 @@ namespace RSAImplementation
 		}
 
 		//for two coprime numbers; based on wiki adaptation of Extended Euclidean Algorithm
-		private static int ModInverse(int a, int n)
+		private static BigInteger ModInverse(BigInteger a, BigInteger n)
 		{
-			int t = 0;
-			int newt = 1;
-			int r = n;
-			int newr = a;
-			int quotient, tmp;
+			BigInteger t = 0;
+			BigInteger newt = 1;
+			BigInteger r = n;
+			BigInteger newr = a;
+			BigInteger quotient, tmp;
 
 			while (newr != 0)
 			{
@@ -88,156 +87,86 @@ namespace RSAImplementation
 
 		}
 
-		public int EncodeNumber(int M, int e, int n) // BigInteger is for great numbers from Pow
+		public BigInteger EncodeNumber(BigInteger M, BigInteger e, BigInteger n)
 		{
-            if (M > n)
+            if (M > n) // jezeli wprowadzona liczba jest wieksza niz n to znaczy blad
             {
 				Console.WriteLine("Musisz wybrać większe n, żeby zakodować tą liczbę");
 				return -1;
 			}
-			int C = (int)BigInteger.ModPow(M, e, n);
+			BigInteger C = BigInteger.ModPow(M, e, n);
 			return C;
 		}
-		public int DecodeNumber(int C, int d, int n) // BigInteger is for great numbers from Pow
+		public BigInteger DecodeNumber(BigInteger C, BigInteger d, BigInteger n)
 		{
-			int M = (int)BigInteger.ModPow(C, d, n);
+			BigInteger M = BigInteger.ModPow(C, d, n);
 			return M;
 		}
 
-		public string EncodeString(string M, int e, int n)
-		{
-			int blockLength = n.ToString().Length;
-			string stringNumber = EncodeStringNumberFromLetters(M); // zdekodowany ciąg liczb
+		public string EncodeString(string M, BigInteger e, BigInteger n)
+        {
+			int blockLength = n.ToString().Length; // dlugość pojedynczego bloku
 			StringBuilder sb = new StringBuilder();
-			StringBuilder sb2 = new StringBuilder();
-			bool needAdditionalBlock = false;
-			// dzielimy ciąg liczb na bloki długości length
-			for (int i = 0; i < stringNumber.Length; i += blockLength)
-			{
-				string mString = "";
-				for (int j = 0; j < blockLength; j++) //bierzemy ciąg długości length
-				{
-					// jezeli wyjdziemy poza zakres tzn, trzeba dorzucic znaki puste, aby blok byl pelny
-					if (i + j >= stringNumber.Length)
-					{
-						if (blockLength % 2 == 0) // jezeli dlugosc bloku jest parzysta
-						{
-							// doklejamy do konca bloku znaki puste
-							while (mString.Length < blockLength)
-							{
-								mString += "26";
-							}
-						}
-						else // jezeli dlugosc bloku jest nieparzysta
-						{
-							// jezeli obecna dlugosc bloku jest parzysta to musimy dokleić znaki puste jeszcze w kolejnym bloku
-							if (mString.Length % 2 == 0)
-							{
-								needAdditionalBlock = true;
-								mString += "2";
-								while (mString.Length < blockLength)
-								{
-									mString += "62";
-								}
-							}
-							else // jezeli obecna dlugosc bloku jest nieparzysta to doklejamy do konca bloku znaki puste
-							{
-								while (mString.Length < blockLength)
-								{
-									mString += "26";
-								}
-							}
-						}
-					}
-					else
-						mString += stringNumber[i + j];
-				}
-				int m = int.Parse(mString); // wartosc bloku
-				sb2.Append(m.ToString().PadLeft(blockLength, '0'));
-				if (m > n) // jezeli wartosc bloku wyszla wieksza niz n to oznacza błąd
-				{
-					sb = null;
-					break;
-				}
-				int num = (int)BigInteger.ModPow(m, e, n); // kodujemy
-				sb.Append(num.ToString().PadLeft(blockLength, '0')); // dorzucamy do wyniku doklejajac 0 z przodu jesli trzeba
-			}
-			if (needAdditionalBlock)
-			{
-				string mString = "6";
-				while (mString.Length < blockLength)
-				{
-					mString += "26";
-				}
-				int m = int.Parse(mString); // wartosc bloku
-				sb2.Append(m.ToString().PadLeft(blockLength, '0'));
-				int num = (int)BigInteger.ModPow(m, e, n); // kodujemy
-				sb.Append(num.ToString().PadLeft(blockLength, '0')); // dorzucamy do wyniku doklejajac 0 z przodu jesli trzeba
-				if (m > n) // jezeli wartosc bloku wyszla wieksza niz n to oznacza błąd
-				{
-					sb = null;
-				}
-			}
-
-            WriteStringNumber("StringNumber= ", sb2.ToString(), blockLength);
-
-            // jezeli zwroci nam null, czyli operacja sie nie powiodla
-            if (sb == null)
+			string stringNumber = EncodeCharsToASCI(M); // zdekodowane znaki w kodzie ASCI
+			// jakbysmy chcieli zobaczyc kody ASCI znakow w slowie
+			//WriteStringNumber("stringNumber= ", stringNumber, 3);
+			// przechodzimy co 3, bo tyle maksymalnie moze zajmowac jeden znak
+			for (int i = 0; i < stringNumber.Length; i += 3)
             {
-				Console.WriteLine("Musisz wybrać większe n, żeby zakodować ten wyraz");
-				return null;
+				// łączymy 3 kolejne cyfry obok siebie w jedną liczbę
+				string mString = stringNumber[i].ToString() + stringNumber[i + 1] + stringNumber[i + 2];
+				int m = int.Parse(mString); // wartość obecnego bloku w ASCI
+				BigInteger num = BigInteger.ModPow(m, e, n); // kodujemy
+				// dorzucamy zakodowany znak do wyniku doklejajac 0 z przodu jesli trzeba
+				sb.Append(num.ToString().PadLeft(blockLength, '0'));
 			}
 			return sb.ToString();
 		}
-		public string DecodeString(string C, int d, int n)
+		public string DecodeString(string C, BigInteger d, BigInteger n)
 		{
-			int blockLength = n.ToString().Length; // znajdujemy dlugość bloku
+			int blockLength = n.ToString().Length; // dlugość pojedynczego bloku
 			StringBuilder sb = new StringBuilder();
-			// dzielimy ciąg liczb na bloki długości blockLength
-			for (int i = 0; i< C.Length; i += blockLength)
+			// przechodzimy co długość pojedynczego bloku
+			for (int i = 0; i < C.Length; i += blockLength)
             {
 				string c = "";
-				for (int j = 0; j < blockLength; j++) //bierzemy ciąg długości blockLength
-				{
+				// laczymy kolejne cyfry w jedna liczbe
+				for (int j = 0; j < blockLength; j++)
+                {
 					c += C[i + j];
-                }
-				int num = (int)BigInteger.ModPow(int.Parse(c), d, n); // dekodujemy
-				sb.Append(num.ToString().PadLeft(blockLength, '0')); // dorzucamy do wyniku doklejajac 0 z przodu jesli trzeba
+				}
+				BigInteger num = BigInteger.ModPow(BigInteger.Parse(c), d, n); // dekodujemy na ASCI
+				// dorzucamy zdekodowany znak do wyniku doklejajac 0 z przodu jesli trzeba
+				sb.Append(num.ToString().PadLeft(3, '0'));
 			}
-			WriteStringNumber("StringNumber= ", sb.ToString(), blockLength);	
-			return DecodeLettersFromStringNumber(sb.ToString());
+			return DecodeASCIToChars(sb.ToString());
 		}
 
-		private static string EncodeStringNumberFromLetters(string word)
-		{
+		private string EncodeCharsToASCI(string word)
+        {
 			StringBuilder sb = new StringBuilder();
-			// iteracja po kazdej literze z wyrazu
-			for (int i = 0; i < word.Length; i++)
-			{
-				char currentChar = word[i];
-				int number = currentChar - 65; // kod obecnej litery
-											   // doklejamy zera z przodu, zeby np 8 zamienilo sie na 08
-				sb.Append(number.ToString().PadLeft(2, '0'));
-			}
+			// przechodzimy po każdej literze ze slowa
+			for(int i = 0; i < word.Length; i++)
+            {
+				int decodedInt = word[i]; // kod ASCI danej litery
+				// dorzucamy zdekodowany kod ASCI do wyniku doklejajac 0 z przodu jesli trzeba
+				sb.Append(decodedInt.ToString().PadLeft(3, '0'));
+            }
 			return sb.ToString();
-		}
-		private static string DecodeLettersFromStringNumber(string numbers)
-		{
+        }
+		private string DecodeASCIToChars(string word)
+        {
 			StringBuilder sb = new StringBuilder();
-			// bierzemy dwucyfrowe liczby
-			for (int i = 0; i < numbers.Length; i += 2)
-			{
-				// łączymy obecny int z następnym w jedną liczbę
-				int concatedNumber = int.Parse(numbers[i].ToString() + numbers[i + 1]);
-				// znak tej liczby
-				char decodedChar = (char)(concatedNumber + 65);
-				// jesli 26('[') to znak pusty (spacja, bo nie puszcza pustego char '')
-				if (decodedChar == '[')
-					decodedChar = ' ';
+			// przechodzimy co 3, bo tyle maksymalnie moze zajmowac jeden znak
+			for (int i = 0; i < word.Length; i += 3)
+            {
+				// łączymy 3 kolejne cyfry obok siebie w jedną liczbę
+				string codedString = word[i].ToString() + word[i + 1] + word[i + 2];
+				char decodedChar = (char)int.Parse(codedString); // znak zdekodowany z kodu ASCI
 				sb.Append(decodedChar);
 			}
 			return sb.ToString();
-		}
+        }
 
 		private static int[] DrawPandQ(int min, int max)
         {
@@ -249,12 +178,13 @@ namespace RSAImplementation
 				q = random.Next(min, max);
 			}
 			while (!IsPrime(p) || !IsPrime(q)
-					|| Math.Max(p, q) - Math.Min(p, q) > Math.Max(10, Math.Max(p, q) * 0.2)
-					|| p == q
-					|| GCDEuclidean(p - 1, q - 1) > Math.Min(p, q) * 0.5
-					|| FirstFactor(p - 1) < Math.Min(Math.Min(p, q) * 0.5, 7)
-					|| FirstFactor(q - 1) < Math.Min(Math.Min(p, q) * 0.5, 7));
-			return new int[2] { p, q };
+                    || BigInteger.Subtract(BigInteger.Max(p, q),BigInteger.Min(p, q)) > 
+					   BigInteger.Max(10, BigInteger.Divide(BigInteger.Max(p, q),10))
+                    || p == q
+                    || GCDEuclidean(p - 1, q - 1) > BigInteger.Divide(BigInteger.Min(p, q),2)
+                    || FirstFactor(p - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q),2), 7)
+                    || FirstFactor(q - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q), 2), 7));
+            return new int[2] { p, q };
         }
 		private static bool IsPrime(int number)
         {
@@ -269,9 +199,9 @@ namespace RSAImplementation
 			}
 			return true;
 		}
-		private static int FirstFactor(int number)
+		private static BigInteger FirstFactor(BigInteger number)
         {
-			int k = 2;
+			BigInteger k = 2;
 			while (number > 1)
 			{
 				while (number % k == 0) //dopóki liczba jest podzielna przez k
