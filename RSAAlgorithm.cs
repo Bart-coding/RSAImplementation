@@ -84,7 +84,6 @@ namespace RSAImplementation
 				t += n;
 
 			return t;
-
 		}
 
 		public BigInteger EncodeNumber(BigInteger M, BigInteger e, BigInteger n)
@@ -107,15 +106,16 @@ namespace RSAImplementation
         {
 			int blockLength = n.ToString().Length; // dlugość pojedynczego bloku
 			StringBuilder sb = new StringBuilder();
-			string stringNumber = EncodeCharsToASCI(M); // zdekodowane znaki w kodzie ASCI
-			// jakbysmy chcieli zobaczyc kody ASCI znakow w slowie
-			//WriteStringNumber("stringNumber= ", stringNumber, 3);
+			// zdekodowane znaki w kodzie ASCII
+			string stringNumber = EncodeCharsToASCII(M);
+			// jakbysmy chcieli zobaczyc kody ASCII znakow w slowie
+			//Program.WriteStringNumber("stringNumber= ", stringNumber, 3);
 			// przechodzimy co 3, bo tyle maksymalnie moze zajmowac jeden znak
 			for (int i = 0; i < stringNumber.Length; i += 3)
             {
 				// łączymy 3 kolejne cyfry obok siebie w jedną liczbę
 				string mString = stringNumber[i].ToString() + stringNumber[i + 1] + stringNumber[i + 2];
-				int m = int.Parse(mString); // wartość obecnego bloku w ASCI
+				int m = int.Parse(mString); // wartość obecnego bloku w ASCII
 				BigInteger num = BigInteger.ModPow(m, e, n); // kodujemy
 				// dorzucamy zakodowany znak do wyniku doklejajac 0 z przodu jesli trzeba
 				sb.Append(num.ToString().PadLeft(blockLength, '0'));
@@ -135,26 +135,27 @@ namespace RSAImplementation
                 {
 					c += C[i + j];
 				}
-				BigInteger num = BigInteger.ModPow(BigInteger.Parse(c), d, n); // dekodujemy na ASCI
+				// dekodujemy na ASCII
+				BigInteger num = BigInteger.ModPow(BigInteger.Parse(c), d, n); 
 				// dorzucamy zdekodowany znak do wyniku doklejajac 0 z przodu jesli trzeba
 				sb.Append(num.ToString().PadLeft(3, '0'));
 			}
-			return DecodeASCIToChars(sb.ToString());
+			return DecodeASCIIToChars(sb.ToString());
 		}
 
-		private string EncodeCharsToASCI(string word)
+		private string EncodeCharsToASCII(string word)
         {
 			StringBuilder sb = new StringBuilder();
 			// przechodzimy po każdej literze ze slowa
 			for(int i = 0; i < word.Length; i++)
             {
-				int decodedInt = word[i]; // kod ASCI danej litery
-				// dorzucamy zdekodowany kod ASCI do wyniku doklejajac 0 z przodu jesli trzeba
+				int decodedInt = word[i]; // kod ASCII danej litery
+				// dorzucamy zdekodowany kod ASCII do wyniku doklejajac 0 z przodu jesli trzeba
 				sb.Append(decodedInt.ToString().PadLeft(3, '0'));
             }
 			return sb.ToString();
         }
-		private string DecodeASCIToChars(string word)
+		private string DecodeASCIIToChars(string word)
         {
 			StringBuilder sb = new StringBuilder();
 			// przechodzimy co 3, bo tyle maksymalnie moze zajmowac jeden znak
@@ -162,7 +163,8 @@ namespace RSAImplementation
             {
 				// łączymy 3 kolejne cyfry obok siebie w jedną liczbę
 				string codedString = word[i].ToString() + word[i + 1] + word[i + 2];
-				char decodedChar = (char)int.Parse(codedString); // znak zdekodowany z kodu ASCI
+				// znak zdekodowany z kodu ASCII
+				char decodedChar = (char)int.Parse(codedString);
 				sb.Append(decodedChar);
 			}
 			return sb.ToString();
@@ -211,21 +213,6 @@ namespace RSAImplementation
 				k++; // jezeli nie da sie podzielic to probujemy z wieksza liczba
 			}
 			return k - 1;
-		}
-
-		public static void WriteStringNumber(string message,string word, int blockLength)
-        {
-			Console.Write(message);
-			for (int i = 0; i < word.Length; i++)
-			{
-				if (i % blockLength == blockLength-1)
-				{
-					Console.Write(word[i] + " ");
-				}
-				else
-					Console.Write(word[i]);
-			}
-			Console.Write("\n");
 		}
 	}
 }
