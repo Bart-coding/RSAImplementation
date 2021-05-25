@@ -86,23 +86,7 @@ namespace RSAImplementation
 			return t;
 		}
 
-		public BigInteger EncodeNumber(BigInteger M, BigInteger e, BigInteger n)
-		{
-            if (M > n) // jezeli wprowadzona liczba jest wieksza niz n to znaczy blad
-            {
-				Console.WriteLine("Musisz wybrać większe n, żeby zakodować tą liczbę");
-				return -1;
-			}
-			BigInteger C = BigInteger.ModPow(M, e, n);
-			return C;
-		}
-		public BigInteger DecodeNumber(BigInteger C, BigInteger d, BigInteger n)
-		{
-			BigInteger M = BigInteger.ModPow(C, d, n);
-			return M;
-		}
-
-		public string EncodeString(string M, BigInteger e, BigInteger n)
+		public string Encode(string M, BigInteger e, BigInteger n)
         {
 			int blockLength = n.ToString().Length; // dlugość pojedynczego bloku
 			StringBuilder sb = new StringBuilder();
@@ -122,7 +106,7 @@ namespace RSAImplementation
 			}
 			return sb.ToString();
 		}
-		public string DecodeString(string C, BigInteger d, BigInteger n)
+		public string Decode(string C, BigInteger d, BigInteger n)
 		{
 			int blockLength = n.ToString().Length; // dlugość pojedynczego bloku
 			StringBuilder sb = new StringBuilder();
