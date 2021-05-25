@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Numerics;
 using System.Text;
 
@@ -12,10 +13,10 @@ namespace RSAImplementation
 		}
 		public KeysConstants GenerateKeys()
 		{
-            //int p = 53;
-            //int q = 61;
-            // ------- TESTS ---------- //
-            //			  max value = 2147483647
+			//int p = 53;
+			//int q = 61;
+			// ------- TESTS ---------- //
+			//			  max value = 2147483647
             int[] tmp = DrawPandQ(10, 10000);
             int p = tmp[0];
             int q = tmp[1];
@@ -25,12 +26,18 @@ namespace RSAImplementation
 
 			BigInteger phi = BigInteger.Multiply(p-1, q-1); //Euler function
 
-			while (e != phi)
+			List<BigInteger> possibleE = new List<BigInteger>();
+			// szukanie wszystkich możliwych e
+			while (e < phi && possibleE.Count < 100000)
 			{
+				// e musi być względnie pierwsza z phi
 				if (GCDEuclidean(e, phi) == 1)
-					break;
+					possibleE.Add(e);
 				e++;
 			}
+			Random random = new Random();
+			// wylosowanie jednej e z listy znalezionych
+			e = possibleE[random.Next(0, possibleE.Count-1)];
 
 			BigInteger d = ModInverse(e, phi);
 
@@ -164,12 +171,13 @@ namespace RSAImplementation
 				q = random.Next(min, max);
 			}
 			while (!IsPrime(p) || !IsPrime(q)
-                    || BigInteger.Subtract(BigInteger.Max(p, q),BigInteger.Min(p, q)) > 
-					   BigInteger.Max(10, BigInteger.Divide(BigInteger.Max(p, q),10))
+                    || BigInteger.Subtract(BigInteger.Max(p, q), BigInteger.Min(p, q)) >
+                       BigInteger.Max(10, BigInteger.Divide(BigInteger.Max(p, q), 10))
                     || p == q
-                    || GCDEuclidean(p - 1, q - 1) > BigInteger.Divide(BigInteger.Min(p, q),2)
-                    || FirstFactor(p - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q),2), 7)
-                    || FirstFactor(q - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q), 2), 7));
+					|| BigInteger.Multiply(p, q) < 256
+					|| GCDEuclidean(p - 1, q - 1) > BigInteger.Divide(BigInteger.Min(p, q), 2)
+					|| FirstFactor(p - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q), 2), 7)
+					|| FirstFactor(q - 1) < BigInteger.Min(BigInteger.Divide(BigInteger.Min(p, q), 2), 7));
             return new int[2] { p, q };
         }
 		private static bool IsPrime(int number)

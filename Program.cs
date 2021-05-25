@@ -15,7 +15,7 @@ namespace RSAImplementation
 
 			// ------- TESTS ---------- //
 			Console.WriteLine("----------------------------- RESULTS -----------------------------");
-			string stringToCode = "012345678901234567890";
+			string stringToCode = "Bezpieczeństwo Sieci Komputerowych ćw. 6-7";
 			Console.WriteLine("  INPUT = " + stringToCode);
 			string C2 = rsaAlgorithm.Encode(stringToCode, keysConstants.e, keysConstants.n);
             WriteStringNumber("ENCODED = ", C2, keysConstants.n.ToString().Length);
